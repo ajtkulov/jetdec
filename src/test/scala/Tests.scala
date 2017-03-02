@@ -2,7 +2,7 @@ import decorator._
 import org.scalatest.FunSuite
 
 class Tests extends FunSuite {
-  implicit val format: Formatters = Formatters
+  implicit val format: Formatter = decorator.Formatter
 
   test("Decorator - main") {
     val text = """Obama visited Facebook headquarters: http://bit.ly/xyz @elversatile"""

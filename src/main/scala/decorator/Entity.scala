@@ -7,6 +7,8 @@ sealed trait Entity {
   def begin: Int
 
   def end: Int
+
+  def accept(formatter: Formatter)(text: String): String
 }
 
 /**
@@ -15,7 +17,9 @@ sealed trait Entity {
   * @param begin begin shift
   * @param end   end shift
   */
-case class EntityName(begin: Int, end: Int) extends Entity {}
+case class EntityName(begin: Int, end: Int) extends Entity {
+  override def accept(formatter: Formatter)(text: String): String = formatter.visit(this)(text)
+}
 
 /**
   * Empty decorator
@@ -26,6 +30,8 @@ case class Empty(position: Int) extends Entity {
   override def begin: Int = position
 
   override def end: Int = position
+
+  override def accept(formatter: Formatter)(text: String): String = formatter.visit(this)(text)
 }
 
 /**
@@ -34,7 +40,9 @@ case class Empty(position: Int) extends Entity {
   * @param begin begin shift
   * @param end   end shift
   */
-case class TwitterUserName(begin: Int, end: Int) extends Entity {}
+case class TwitterUserName(begin: Int, end: Int) extends Entity {
+  override def accept(formatter: Formatter)(text: String): String = formatter.visit(this)(text)
+}
 
 /**
   * Link decorator
@@ -42,7 +50,9 @@ case class TwitterUserName(begin: Int, end: Int) extends Entity {}
   * @param begin begin shift
   * @param end   end shift
   */
-case class Link(begin: Int, end: Int) extends Entity {}
+case class Link(begin: Int, end: Int) extends Entity {
+  override def accept(formatter: Formatter)(text: String): String = formatter.visit(this)(text)
+}
 
 /**
   * Block decorator
@@ -51,7 +61,9 @@ case class Link(begin: Int, end: Int) extends Entity {}
   * @param end      end shift
   * @param children children decorators
   */
-case class Block(begin: Int, end: Int, children: Seq[Entity]) extends Entity {}
+case class Block(begin: Int, end: Int, children: Seq[Entity]) extends Entity {
+  override def accept(formatter: Formatter)(text: String): String = formatter.visit(this)(text)
+}
 
 /**
   * Markup

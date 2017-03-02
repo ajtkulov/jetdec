@@ -1,65 +1,42 @@
 package decorator
 
 /**
-  * Formatter
-  *
-  * @tparam T sub-type of decorator entity
-  */
-trait Formatter[T <: Entity] {
-  def format(entity: T)(text: String): String
-
-  def value(entity: T)(text: String): String = {
-    text.substring(entity.begin, entity.end)
-  }
-}
-
-/**
   * Formatters
   */
-trait Formatters {
+trait Formatter {
+  def visit(block: Block)(text: String): String
 
-  abstract class TagFormatter[T <: Entity] extends Formatter[T] {
-    val tag: String
+  def visit(empty: Empty)(text: String): String
 
-    override def format(entity: T)(text: String): String = {
-      val substr = value(entity)(text)
-      s"""<${tag}>${substr}</${tag}>"""
-    }
-  }
+  def visit(entityName: EntityName)(text: String): String
 
-  implicit val entityNameFormatter: Formatter[EntityName]
-  implicit val linkFormatter: Formatter[Link]
-  implicit val blockFormatter: Formatter[Block]
-  implicit val twitterUserNameFormatter: Formatter[TwitterUserName]
+  def visit(twitterUserName: TwitterUserName)(text: String): String
 
-  implicit val emptyFormatter = new Formatter[Empty] {
-    override def format(entity: Empty)(text: String): String = ""
+  def visit(link: Link)(text: String): String
+
+  def substr(entity: Entity, text: String): String = {
+    text.substring(entity.begin, entity.end)
   }
 }
 
 /**
   * Implementation for Formatters
   */
-object Formatters extends Formatters {
-  implicit val entityNameFormatter = new TagFormatter[EntityName] {
-    override val tag = "strong"
+object Formatter extends Formatter {
+
+  override def visit(block: Block)(text: String): String = text
+
+  override def visit(empty: Empty)(text: String): String = ""
+
+  override def visit(entityName: EntityName)(text: String): String = s"""<strong>${substr(entityName, text)}</strong>"""
+
+  override def visit(twitterUserName: TwitterUserName)(text: String): String = {
+    val str = substr(twitterUserName, text)
+    s"""<a href=”http://twitter.com/$str”>$str</a>"""
   }
 
-  implicit val linkFormatter = new Formatter[Link] {
-    override def format(entity: Link)(text: String): String = {
-      val substr = value(entity)(text)
-      s"""<a href=”${substr}”>${substr}</a>"""
-    }
-  }
-
-  implicit val blockFormatter = new Formatter[Block] {
-    override def format(entity: Block)(text: String): String = text
-  }
-
-  implicit val twitterUserNameFormatter = new Formatter[TwitterUserName] {
-    override def format(entity: TwitterUserName)(text: String): String = {
-      val substr = value(entity)(text)
-      s"""<a href=”http://twitter.com/${substr}”>${substr}</a>"""
-    }
+  override def visit(link: Link)(text: String): String = {
+    val str = substr(link, text)
+    s"""<a href=”$str”>$str</a>"""
   }
 }

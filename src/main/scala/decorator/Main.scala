@@ -12,7 +12,7 @@ object Main extends App {
           Link(37, 54)
         )))
 
-    val res = Traverse.handle(input.text)(input.markup.children)(Formatters)
+    val res = Traverse.handle(input.text)(input.markup.children)(Formatter)
     println(res)
   }
 }
